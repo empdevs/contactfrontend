@@ -115,6 +115,26 @@ class AxiosService {
             })
         }
     }
+
+    public async patchItem<T>(url: string, body: IParameters, config?: AxiosRequestConfig): Promise<ISingleResponse<T>> {
+        try {
+            const response = await this.axiosInstance.patch(url, body, config ?? this.config);
+            console.log(response);
+            const item = response.data;
+            return ({
+                status: item.status,
+                message: item.message,
+                error: item.error
+            });
+        } catch (error: any) {
+            return ({
+                status: error?.response?.status,
+                message: error?.message,
+                error: true
+
+            });
+        }
+    }
 }
 
 

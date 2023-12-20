@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Stack, TextField, PrimaryButton, IStackStyles, Text, MessageBar, MessageBarType, mergeStyleSets } from '@fluentui/react';
+import { Stack, TextField, PrimaryButton, IStackStyles, Text, MessageBar, MessageBarType, mergeStyleSets, ProgressIndicator } from '@fluentui/react';
 import AxiosService from '../helper/AxiosService';
 import Uri from '../Uri';
 import { useHistory } from 'react-router-dom';
@@ -9,7 +9,12 @@ export interface IUser {
     username: string,
     accessToken?: string
 }
-const Login: React.FC = () => {
+interface ILogin {
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+    setAppLoadingMsg: React.Dispatch<React.SetStateAction<string>>,
+    authentication: Function
+}
+const Login: React.FC<ILogin> = (props: ILogin) => {
 
     const axiosService = new AxiosService();
     const history = useHistory();
@@ -17,6 +22,9 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState<string>("");
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
+    // const [loading, setLoading] = useState<boolean>(true);
+    // const [appLoadingMsg, setAppLoadingMsg] = useState<string>("");
+
 
     function displayError(message: string) {
         setShowError(true);
@@ -40,7 +48,7 @@ const Login: React.FC = () => {
                 localStorage.setItem("accessToken", item.accessToken!);
                 setUsername("");
                 setPassword("");
-                history.push('/Main');
+                history.push('Index/Landing');
             } else {
                 displayError(message);
             }
@@ -66,6 +74,11 @@ const Login: React.FC = () => {
             backgroundColor: '#fff',
         }
     });
+
+    useEffect(() => {
+        // console.log("Login");
+        props.authentication();
+    }, []);
 
     return (
         <div style={{
