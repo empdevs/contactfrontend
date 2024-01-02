@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import Uri from "../Uri";
-
+import { IParameters } from "../Types";
+import { refreshAccessToken } from "./helper";
+export const baseURL: string = Uri.rootUri;
 interface IMultipleResponse<T> {
     items: T[],
     status: number,
@@ -13,18 +15,11 @@ interface ISingleResponse<T> {
     message: string,
     error?: boolean
 }
-interface IParameters {
-    username?: string,
-    password?: any,
-    name?: string,
-    phone?: number
-}
 class AxiosService {
 
     private axiosInstance: AxiosInstance;
     private config: AxiosRequestConfig;
     constructor() {
-        const baseURL: string = Uri.rootUri;
         const accessToken: string | null = localStorage.getItem("accessToken");
         this.axiosInstance = axios.create({
             baseURL: baseURL
@@ -38,102 +33,176 @@ class AxiosService {
     }
 
     public async getItems<T>(url: string, params?: IParameters, config?: AxiosRequestConfig): Promise<IMultipleResponse<T>> {
-        try {
-            const response = await this.axiosInstance.get(url, config ?? this.config);
-            console.log(response)
-            const items: T[] = response.data.data;
-            return ({
-                items: items,
-                status: response.data.status,
-                message: response.data.message,
-                error: response.data.error
-            })
-        } catch (error: any) {
-            return ({
-                items: [],
-                status: error?.response?.status,
-                message: error?.message,
-                error: true
-            })
-        }
+        let isRepeated: boolean = false;
+        do {
+            try {
+                const response = await this.axiosInstance.get(url, config ?? this.config);
+                console.log(response)
+                const { data, status, message, error }: { data: T[], status: number, message: string, error: boolean } = response.data;
+                /**
+                 * Error systematically
+                 * If access token expired
+                 */
+                if (error) {
+                    if (message == "TokenExpiredError") {
+                        isRepeated = true;
+                        const accessToken: string | undefined = await refreshAccessToken(this.config.headers["accessToken"]);
+                        this.config.headers.accessToken = accessToken;
+                    }
+                } else {
+                    isRepeated = false;
+                    return ({
+                        items: data,
+                        status: status,
+                        message: message,
+                        error: error
+                    });
+                }
+            } catch (error: any) {
+                isRepeated = false;
+                return ({
+                    items: [],
+                    status: error?.response?.status,
+                    message: error?.message,
+                    error: true
+                })
+            }
+        } while (isRepeated);
     }
 
     public async getItem<T>(url: string, params?: IParameters, config?: AxiosRequestConfig): Promise<ISingleResponse<T>> {
-        try {
-            const response = await this.axiosInstance.get(url, config ?? this.config);
-            const item: T = response.data;
-            return ({
-                item: item,
-                status: response.status,
-                message: "Success get data"
-            })
-        } catch (error: any) {
-            return ({
-                item: null,
-                status: error?.response?.status,
-                message: error?.message,
-                error: true
-            })
-        }
+        let isRepeated: boolean = false;
+        do {
+            try {
+                const response = await this.axiosInstance.get(url, config ?? this.config);
+                console.log(response);
+                const { data, status, error, message }: { data: T, status: number, error: any, message: string } = response.data;
+                /**
+               * Error systematically
+               * If access token expired
+               */
+                if (error) {
+                    if (message == "TokenExpiredError") {
+                        isRepeated = true;
+                        const accessToken: string | undefined = await refreshAccessToken(this.config.headers["accessToken"]);
+                        this.config.headers.accessToken = accessToken;
+                    }
+                } else {
+                    isRepeated = false;
+                    return ({
+                        item: data,
+                        status: status,
+                        message: "Success get data"
+                    })
+                }
+            } catch (error: any) {
+                isRepeated = false;
+                return ({
+                    item: null,
+                    status: error?.response?.status,
+                    message: error?.message,
+                    error: true
+                })
+            }
+        } while (isRepeated);
     }
 
     public async post<T>(url: string, body: IParameters, config?: AxiosRequestConfig): Promise<ISingleResponse<T>> {
-        try {
-            const response = await this.axiosInstance.post(url, body, config ?? this.config);
-            console.log(response)
-            const item = response.data;
-            return ({
-                item: item.data,
-                status: item.status,
-                message: item.message
-            })
-        } catch (error: any) {
-            return ({
-                item: null,
-                status: error?.response?.status,
-                message: error?.message,
-                error: true
-            })
-        }
+        let isRepeated: boolean = false;
+        do {
+            try {
+                const response = await this.axiosInstance.post(url, body, config ?? this.config);
+                console.log(response)
+                const { data, status, error, message }: { data: T, status: number, error: any, message: string } = response.data;
+                if (error) {
+                    if (message == "TokenExpiredError") {
+                        isRepeated = true;
+                        const accessToken: string | undefined = await refreshAccessToken(this.config.headers["accessToken"]);
+                        this.config.headers.accessToken = accessToken;
+                    }
+                } else {
+                    isRepeated = false;
+                    return ({
+                        item: data,
+                        status: status,
+                        message: message
+                    })
+                }
+            } catch (error: any) {
+                isRepeated = false;
+                return ({
+                    item: null,
+                    status: error?.response?.status,
+                    message: error?.message,
+                    error: true
+                })
+            }
+        } while (isRepeated);
     }
 
     public async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ISingleResponse<T>> {
-        try {
-            const response = await this.axiosInstance.delete(url, config ?? this.config);
-            console.log(response)
-            const item = response.data;
-            return ({
-                status: item.status,
-                message: item.message,
-                error: item.error,
-            })
-        } catch (error: any) {
-            return ({
-                status: error?.response?.status,
-                message: error?.message,
-                error: true
-            })
-        }
+        let isRepeated: boolean = false;
+        do {
+            try {
+                const response = await this.axiosInstance.delete(url, config ?? this.config);
+                console.log(response)
+                const { data, status, error, message }: { data: T, status: number, error: any, message: string } = response.data;
+                if (error) {
+                    if (message == "TokenExpiredError") {
+                        isRepeated = true;
+                        const accessToken: string | undefined = await refreshAccessToken(this.config.headers["accessToken"]);
+                        this.config.headers.accessToken = accessToken;
+                    }
+                } else {
+                    isRepeated = false;
+                    return ({
+                        status: status,
+                        message: message,
+                        error: error,
+                    })
+                }
+            } catch (error: any) {
+                isRepeated = false;
+                return ({
+                    status: error?.response?.status,
+                    message: error?.message,
+                    error: true
+                })
+            }
+        } while (isRepeated);
     }
 
     public async patchItem<T>(url: string, body: IParameters, config?: AxiosRequestConfig): Promise<ISingleResponse<T>> {
-        try {
-            const response = await this.axiosInstance.patch(url, body, config ?? this.config);
-            console.log(response);
-            const item = response.data;
-            return ({
-                status: item.status,
-                message: item.message,
-                error: item.error
-            });
-        } catch (error: any) {
-            return ({
-                status: error?.response?.status,
-                message: error?.message,
-                error: true
+        let isRepeated = false;
+        do {
+            try {
+                const response = await this.axiosInstance.patch(url, body, config ?? this.config);
+                console.log(response);
+                const { data, status, error, message }: { data: T, status: number, error: any, message: string } = response.data;
+                if (error) {
+                    if (message == "TokenExpiredError") {
+                        isRepeated = true;
+                        const accessToken: string | undefined = await refreshAccessToken(this.config.headers["accessToken"]);
+                        this.config.headers.accessToken = accessToken;
+                    }
+                } else {
+                    isRepeated = false;
+                    return ({
+                        status: status,
+                        message: message,
+                        error: error
+                    });
+                }
+            } catch (error: any) {
+                isRepeated = false;
+                return ({
+                    status: error?.response?.status,
+                    message: error?.message,
+                    error: true
 
-            });
-        }
+                });
+            }
+        } while (isRepeated);
     }
 }
 

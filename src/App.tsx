@@ -5,11 +5,13 @@ import Login from './Pages/Login';
 import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
 import Main from './Pages/Main';
 import { ProgressIndicator } from '@fluentui/react';
+import { IUser } from './Types';
 
 function App() {
 
   const history = useHistory();
   const [loading, setLoading] = useState<boolean>(true);
+  const [user, setUser] = useState<IUser>();
   const [appLoadingMsg, setAppLoadingMsg] = useState<string>("We are preparing the application");
 
   function authentication() {
@@ -56,6 +58,7 @@ function App() {
               setLoading={setLoading}
               setAppLoadingMsg={setAppLoadingMsg}
               authentication={authentication}
+              setUser={setUser}
             />
           )
         }}
@@ -65,7 +68,9 @@ function App() {
         path="/Index"
         render={() => {
           return (
-            <Main />
+            <Main 
+              user={user}
+            />
           )
         }}
       />

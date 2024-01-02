@@ -3,16 +3,13 @@ import { Stack, TextField, PrimaryButton, IStackStyles, Text, MessageBar, Messag
 import AxiosService from '../helper/AxiosService';
 import Uri from '../Uri';
 import { useHistory } from 'react-router-dom';
+import { IUser } from '../Types';
 
-export interface IUser {
-    id: string,
-    username: string,
-    accessToken?: string
-}
 interface ILogin {
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>
-    setAppLoadingMsg: React.Dispatch<React.SetStateAction<string>>,
-    authentication: Function
+    setLoading: Function
+    setAppLoadingMsg: Function,
+    authentication: Function,
+    setUser: Function
 }
 const Login: React.FC<ILogin> = (props: ILogin) => {
 
@@ -46,6 +43,7 @@ const Login: React.FC<ILogin> = (props: ILogin) => {
             console.log(item)
             if (item) {
                 localStorage.setItem("accessToken", item.accessToken!);
+                props.setUser(item)
                 setUsername("");
                 setPassword("");
                 history.push('Index/Landing');

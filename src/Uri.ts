@@ -5,5 +5,6 @@ class Uri {
     public static get insertContact(): string { return process.env.REACT_APP_API_INSERT_CONTACT! }
     public static get deleteContact(): string { return process.env.REACT_APP_API_DELETE_CONTACT! }
     public static get patchContact(): string { return process.env.REACT_APP_API_PATCH_CONTACT! }
+    public static get refreshToken(): string { return process.env.REACT_APP_API_REFRESH_TOKEN! }
 };
 export default Uri;

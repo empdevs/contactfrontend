@@ -27,7 +27,6 @@ const TelegramButton = (props: ITelegramButton) => {
         window.TelegramLoginWidget = {
             dataOnauth: (user: any) => props.dataOnauth(user),
         };
-
         const script = document.createElement("script");
         script.src = `https://telegram.org/js/telegram-widget.js?${props.widgetVersion}`;
         script.setAttribute("data-telegram-login", props.botName);
@@ -45,10 +44,10 @@ const TelegramButton = (props: ITelegramButton) => {
         script.async = true;
         instanceRef.current.appendChild(script);
 
-        return () => {
-            delete window.TelegramLoginWidget;
-            instanceRef.current.innerHTML = "";
-        };
+        // return () => {
+        //     delete window.TelegramLoginWidget;
+        //     instanceRef.current.innerHTML = "";
+        // };
     }, [
         props.botName,
         props.buttonSize,
@@ -62,15 +61,16 @@ const TelegramButton = (props: ITelegramButton) => {
     ]);
 
     return (
-        <div
-            className={props.className}
-            ref={(component) => {
-                instanceRef.current = component;
-            }}
-        >
-            haha
-            {props.children}
-        </div>
+        <>
+            <div
+                className={props.className}
+                ref={(component) => {
+                    instanceRef.current = component;
+                }}
+            >
+                {props.children}
+            </div>
+        </>
     );
 };
 

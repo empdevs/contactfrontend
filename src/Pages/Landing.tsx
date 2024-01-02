@@ -7,13 +7,8 @@ import Navbar from '../Components/Navbar';
 import DialogBasic from '../Components/DialogBasic';
 import HeaderButton from '../Components/HeaderButton';
 import { useHistory } from 'react-router-dom';
-import TelegramButton from '../Components/TelegramButton';
-
-interface IContacts {
-    id: string,
-    name: string,
-    phone: number
-}
+import { IContacts, IParameters, IUser } from '../Types';
+import { encodeQueryParams } from '../helper/helper';
 
 const addIcon: IIconProps = { iconName: "Add" };
 const editIcon: IIconProps = { iconName: "Edit" };
@@ -31,9 +26,13 @@ const columns: IColumn[] = [
     { key: 'column2', name: 'Phone', fieldName: 'phone', minWidth: 100, maxWidth: 200, isResizable: true },
     { key: 'column3', name: 'Action', fieldName: 'action', minWidth: 100, maxWidth: 200, isResizable: true },
 ];
-const Landing: React.FC = () => {
+interface ILanding {
+    user?: IUser,
+}
+const Landing: React.FC<ILanding> = (props: ILanding) => {
     const axiosService = new AxiosService();
     const history = useHistory();
+    const user: IUser = props?.user;
     const [contacts, setContacts] = useState<IContacts[]>([]);
 
     const [activeItem, setActiveItem] = useState<IContacts>();
@@ -80,8 +79,17 @@ const Landing: React.FC = () => {
     }
 
     async function save() {
+
+        const queryParams: IParameters = {
+            userId: user.id,
+            username: user.username
+        }
+
         try {
-            await axiosService.post<IContacts>(Uri.insertContact, { name: name!, phone: phone! });
+            await axiosService.post<IContacts>(Uri.insertContact + `${`/?${encodeQueryParams(queryParams)}`}`, {
+                name: name!,
+                phone: phone!
+            });
             setIsOpenModal(false);
             displaySuccess("Success insert contact");
             loadData();
@@ -219,9 +227,6 @@ const Landing: React.FC = () => {
         localStorage.clear();
         history.push("/Login");
     }
-    function handleTelegramResponse(user: any) {
-
-    }
     useEffect(() => {
         console.log(history);
         loadData();
@@ -230,89 +235,75 @@ const Landing: React.FC = () => {
         <>
             <Navbar />
             <div className={styles.wrapper}>
-                <TelegramButton
-                    dataOnauth={handleTelegramResponse}
-                    botName={'ContactOfficialBot'}
-                    buttonSize={'medium'}
-                    cornerRadius={14}
-                    requestAccess={'write'}
-                    usePic={undefined}
-                    dataAuthUrl={undefined}
-                    lang={"en"}
-                    widgetVersion={22}
-                    className={undefined}
-                >
-                    Login Telegram
-                </TelegramButton>
-            </div>
-            <div>
-                <HeaderButton
-                    signOut={signOut}
-                />
-                {showSuccess &&
-                    <div style={{ marginBottom: 10 }}>
-                        <MessageBar
-                            messageBarType={MessageBarType.success}
-                        >
-                            {successMessage}
-                        </MessageBar>
-                    </div>
-                }
-                {showError &&
-                    <div style={{ marginBottom: 10 }}>
-                        <MessageBar
-                            messageBarType={MessageBarType.error}
-                        >
-                            {errorMessage}
-                        </MessageBar>
-                    </div>
-                }
                 <div>
-                    <PrimaryButton
-                        text="New"
-                        iconProps={addIcon}
-                        onClick={() => {
-                            setIsOpenModal(true);
-                            setName("");
-                            setPhone(null);
-                            setCurrentAction("create");
-                        }}
+                    <HeaderButton
+                        signOut={signOut}
                     />
+                    {showSuccess &&
+                        <div style={{ marginBottom: 10 }}>
+                            <MessageBar
+                                messageBarType={MessageBarType.success}
+                            >
+                                {successMessage}
+                            </MessageBar>
+                        </div>
+                    }
+                    {showError &&
+                        <div style={{ marginBottom: 10 }}>
+                            <MessageBar
+                                messageBarType={MessageBarType.error}
+                            >
+                                {errorMessage}
+                            </MessageBar>
+                        </div>
+                    }
+                    <div>
+                        <PrimaryButton
+                            text="New"
+                            iconProps={addIcon}
+                            onClick={() => {
+                                setIsOpenModal(true);
+                                setName("");
+                                setPhone(null);
+                                setCurrentAction("create");
+                            }}
+                        />
+                    </div>
+                    <DetailsList
+                        items={contacts}
+                        columns={columns}
+                        setKey="set"
+                        layoutMode={DetailsListLayoutMode.justified}
+                        selectionMode={SelectionMode.none}
+                        onRenderItemColumn={onRenderItemColumn}
+                    />
+                    <ModalBasic
+                        isOpen={isOpenModal}
+                        onDismiss={() => setIsOpenModal(false)}
+                        title={`${currentAction === "create" ? "New" : "Edit"} Contact`}
+                        body={onRenderBody}
+                        footer={() => {
+                            return (
+                                <Footer
+                                    cancelText={"Cancel"}
+                                    saveText={currentAction === "create" ? "Add" : "Save"}
+                                    onClickSave={currentAction === "create" ? save : editContact}
+                                    onClickCancel={() => setIsOpenModal(false)}
+                                    disabledSave={!!!name}
+                                />)
+                        }}
+                        width={400}
+                    />
+                    <DialogBasic
+                        isOpen={isOpenDialog}
+                        onDismiss={() => setIsOpenDialog(false)}
+                        title={"Confirmation"}
+                        saveText={'Delete'}
+                        cancelText={'Cancel'}
+                        subText={'Are you sure delete this contact?'}
+                        onSaveButton={deleteContact}
+                        onCancelButton={() => setIsOpenDialog(false)} />
                 </div>
-                <DetailsList
-                    items={contacts}
-                    columns={columns}
-                    setKey="set"
-                    layoutMode={DetailsListLayoutMode.justified}
-                    selectionMode={SelectionMode.none}
-                    onRenderItemColumn={onRenderItemColumn}
-                />
-                <ModalBasic
-                    isOpen={isOpenModal}
-                    onDismiss={() => setIsOpenModal(false)}
-                    title={`${currentAction === "create" ? "New" : "Edit"} Contact`}
-                    body={onRenderBody}
-                    footer={() => {
-                        return (
-                            <Footer
-                                cancelText={"Cancel"}
-                                saveText={currentAction === "create" ? "Add" : "Save"}
-                                onClickSave={currentAction === "create" ? save : editContact}
-                                onClickCancel={() => setIsOpenModal(false)}
-                                disabledSave={!!!name}
-                            />)
-                    }}
-                    width={400}
-                />
-                <DialogBasic
-                    isOpen={isOpenDialog}
-                    onDismiss={() => setIsOpenDialog(false)}
-                    title={"Confirmation"}
-                    saveText={'Delete'}
-                    cancelText={'Cancel'}
-                    subText={'Are you sure delete this contact?'}
-                    onSaveButton={deleteContact}
-                    onCancelButton={() => setIsOpenDialog(false)} />
             </div>
         </>
     );

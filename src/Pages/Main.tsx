@@ -2,8 +2,14 @@ import React, { useEffect, useState } from 'react';
 import AxiosService from '../helper/AxiosService';
 import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom';
 import Landing from './Landing';
+import { IUser } from '../Types';
 
-const Main: React.FC = () => {
+interface IMain {
+    user?: IUser
+}
+
+const Main: React.FC<IMain> = (props: IMain) => {
+    console.log(props);
     const { url } = useRouteMatch()
 
     useEffect(() => {
@@ -14,7 +20,13 @@ const Main: React.FC = () => {
             <Route
                 exact
                 path={`${url}/Landing`}
-                render={() => <Landing />}
+                render={() => {
+                    return (
+                        <Landing
+                            user={props.user}
+                        />
+                    )
+                }}
             />
         </Switch>
     );
