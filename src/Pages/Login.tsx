@@ -112,7 +112,6 @@ const Login: React.FC<ILogin> = (props: ILogin) => {
                         onChange={(event, newValue) => setPassword(newValue || "")}
                         canRevealPassword
                     />
-                    
                     <PrimaryButton
                         text="Login"
                         onClick={handleLogin}
