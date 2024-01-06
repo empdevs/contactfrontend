@@ -43,11 +43,6 @@ const TelegramButton = (props: ITelegramButton) => {
 
         script.async = true;
         instanceRef.current.appendChild(script);
-
-        // return () => {
-        //     delete window.TelegramLoginWidget;
-        //     instanceRef.current.innerHTML = "";
-        // };
     }, [
         props.botName,
         props.buttonSize,
