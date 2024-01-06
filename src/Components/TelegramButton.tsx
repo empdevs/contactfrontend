@@ -43,6 +43,7 @@ const TelegramButton = (props: ITelegramButton) => {
 
         script.async = true;
         instanceRef.current.appendChild(script);
+        
     }, [
         props.botName,
         props.buttonSize,
