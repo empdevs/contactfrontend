@@ -74,7 +74,6 @@ const Login: React.FC<ILogin> = (props: ILogin) => {
     });
 
     useEffect(() => {
-        // console.log("Login");
         props.authentication();
     }, []);
 
