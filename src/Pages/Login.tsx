@@ -19,9 +19,6 @@ const Login: React.FC<ILogin> = (props: ILogin) => {
     const [password, setPassword] = useState<string>("");
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
-    // const [loading, setLoading] = useState<boolean>(true);
-    // const [appLoadingMsg, setAppLoadingMsg] = useState<string>("");
-
 
     function displayError(message: string) {
         setShowError(true);
