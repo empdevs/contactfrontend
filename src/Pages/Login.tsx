@@ -36,7 +36,7 @@ const Login: React.FC<ILogin> = (props: ILogin) => {
             return;
         }
         try {
-            const { item: item, message: message } = await axiosService.post<IUser>(Uri.auth, { username: username, password: password });
+            const { item: item, message: message } = await axiosService.post<IUser>(Uri.auth, { username: username, password: password }, { headers: { noCheckToken: true } });
             console.log(item)
             if (item) {
                 localStorage.setItem("accessToken", item.accessToken!);
