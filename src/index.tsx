@@ -6,14 +6,18 @@ import reportWebVitals from './reportWebVitals';
 import { initializeIcons } from '@fluentui/react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import 'antd/dist/antd.css';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import Uri from './Uri';
 
 initializeIcons();
 ReactDOM.render(
-  <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
-  </React.StrictMode>,
+  <GoogleOAuthProvider clientId={Uri.googleClientId}>
+    <React.StrictMode>
+      <Router>
+        <App />
+      </Router>
+    </React.StrictMode>
+  </GoogleOAuthProvider>,
   document.getElementById('root') as HTMLElement
 );
 

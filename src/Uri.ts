@@ -6,5 +6,7 @@ class Uri {
     public static get deleteContact(): string { return process.env.REACT_APP_API_DELETE_CONTACT! }
     public static get patchContact(): string { return process.env.REACT_APP_API_PATCH_CONTACT! }
     public static get refreshToken(): string { return process.env.REACT_APP_API_REFRESH_TOKEN! }
+    public static get googleClientId(): string { return process.env.REACT_APP_API_CLIENT_ID! }
+    public static get googleClientSecret(): string { return process.env.REACT_APP_API_CLIENT_SECRET! }
 };
 export default Uri;

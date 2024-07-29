@@ -4,6 +4,9 @@ import AxiosService from '../helper/AxiosService';
 import Uri from '../Uri';
 import { useHistory } from 'react-router-dom';
 import { IUser } from '../Types';
+import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
+
 
 interface ILogin {
     setLoading: Function
@@ -11,6 +14,24 @@ interface ILogin {
     authentication: Function,
     setUser: Function
 }
+
+
+const styles = mergeStyleSets({
+    wrapper: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '85vh'
+    },
+    forms: {
+        border: '1px solid #ddd',
+        borderRadius: 5,
+        padding: 20,
+        width: 300,
+        boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
+        backgroundColor: '#fff',
+    }
+});
 const Login: React.FC<ILogin> = (props: ILogin) => {
 
     const axiosService = new AxiosService();
@@ -53,22 +74,26 @@ const Login: React.FC<ILogin> = (props: ILogin) => {
 
     };
 
-    const styles = mergeStyleSets({
-        wrapper: {
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '85vh'
-        },
-        forms: {
-            border: '1px solid #ddd',
-            borderRadius: 5,
-            padding: 20,
-            width: 300,
-            boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
-            backgroundColor: '#fff',
+    const onSuccess = async (tokenResponse) => {
+        console.log(tokenResponse);
+        const { item: item, message: message, error: error } = await axiosService.post<IUser>(Uri.auth, tokenResponse, { headers: { noCheckToken: true } });
+        console.log(item);
+        if (item) {
+            localStorage.setItem("accessToken", item.accessToken!);
+            props.setUser(item)
+            setUsername("");
+            setPassword("");
+            history.push('Index/Landing');
+        } else {
+            displayError(message);
         }
-    });
+    }
+
+    const login = useGoogleLogin({
+        onSuccess: onSuccess,
+        flow: "auth-code"
+    })
+
 
     useEffect(() => {
         props.authentication();
@@ -112,6 +137,10 @@ const Login: React.FC<ILogin> = (props: ILogin) => {
                         text="Login"
                         onClick={handleLogin}
                         allowDisabledFocus
+                    />
+                    <PrimaryButton
+                        text="Login with Google"
+                        onClick={login}
                     />
                 </Stack>
             </div>
